@@ -221,11 +221,11 @@ update_shell() {
 
 # 0: running, 1: not running, 2: not installed
 check_status() {
-    if [[ ! -f /etc/systemd/system/V2bX.service ]]; then
+    if [[ ! -f /etc/init.d/V2bX ]]; then
         return 2
     fi
-    temp=$(systemctl status V2bX | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
-    if [[ x"${temp}" == x"running" ]]; then
+    status=$(rc-service V2bX status | grep -E 'status: (started|stopped)' | awk '{print $3}')
+    if [[ "${status}" == "started" ]]; then
         return 0
     else
         return 1
@@ -233,11 +233,11 @@ check_status() {
 }
 
 check_enabled() {
-    temp=$(systemctl is-enabled V2bX)
-    if [[ x"${temp}" == x"enabled" ]]; then
+    rc-update show | grep -q '^ *V2bX .*default'
+    if [[ $? -eq 0 ]]; then
         return 0
     else
-        return 1;
+        return 1
     fi
 }
 
