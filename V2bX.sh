@@ -96,11 +96,20 @@ uninstall() {
         fi
         return 0
     fi
-    systemctl stop V2bX
-    systemctl disable V2bX
-    rm /etc/systemd/system/V2bX.service -f
-    systemctl daemon-reload
-    systemctl reset-failed
+    # 停止服务
+    rc-service V2bX stop
+    # 禁用服务，使其不在启动时自动启动
+    rc-update del V2bX
+    # 删除服务脚本
+    rm /etc/init.d/V2bX -f
+    # 重载服务配置（OpenRC 没有与 systemd 等效的 daemon-reload 和 reset-failed，但删除服务脚本和禁用服务已足够）
+    # 确保删除无误
+if [[ ! -f /etc/init.d/V2bX ]]; then
+    echo "Service V2bX successfully removed."
+else
+    echo "Failed to remove service V2bX."
+fi
+
     rm /etc/V2bX/ -rf
     rm /usr/local/V2bX/ -rf
 
@@ -119,7 +128,7 @@ start() {
         echo ""
         echo -e "${green}V2bX已运行，无需再次启动，如需重启请选择重启${plain}"
     else
-        systemctl start V2bX
+        rc-service V2bX start
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
@@ -135,7 +144,7 @@ start() {
 }
 
 stop() {
-    systemctl stop V2bX
+    rc-service V2bX stop
     sleep 2
     check_status
     if [[ $? == 1 ]]; then
@@ -150,7 +159,7 @@ stop() {
 }
 
 restart() {
-    systemctl restart V2bX
+    rc-service V2bX restart
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
@@ -164,14 +173,14 @@ restart() {
 }
 
 status() {
-    systemctl status V2bX --no-pager -l
+    rc-service V2bX status --no-pager -l
     if [[ $# == 0 ]]; then
         before_show_menu
     fi
 }
 
 enable() {
-    systemctl enable V2bX
+    rc-update add V2bX default
     if [[ $? == 0 ]]; then
         echo -e "${green}V2bX 设置开机自启成功${plain}"
     else
@@ -184,7 +193,7 @@ enable() {
 }
 
 disable() {
-    systemctl disable V2bX
+    rc-update del V2bX default
     if [[ $? == 0 ]]; then
         echo -e "${green}V2bX 取消开机自启成功${plain}"
     else
@@ -769,8 +778,8 @@ check_ipv6_support() {
 
 # 放开防火墙端口
 open_ports() {
-    systemctl stop firewalld.service 2>/dev/null
-    systemctl disable firewalld.service 2>/dev/null
+    rc-service firewalld stop 2>/dev/null
+    rc-update del firewalld 2>/dev/null
     setenforce 0 2>/dev/null
     ufw disable 2>/dev/null
     iptables -P INPUT ACCEPT 2>/dev/null
