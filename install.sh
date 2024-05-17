@@ -190,5 +190,5 @@ install_V2bX() {
 }
 
 echo -e "${green}开始安装${plain}"
-install_base
+###install_base
 install_V2bX $1
