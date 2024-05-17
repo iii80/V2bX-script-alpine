@@ -14,11 +14,5 @@ Find the source code here: [InazumaV/V2bX](https://github.com/InazumaV/V2bX)
 # 一键安装
 
 ```
-wget -N https://raw.githubusercontent.com/114514-homo-lab/V2bX-script/master/install.sh && bash install.sh
-```
-
-# mirror
-
-```
-wget -N https://pan.lyxmb.bf/d/r2/install.sh && bash install.sh
+wget -N https://raw.githubusercontent.com/iii80/V2bX-script/master/install.sh && bash install.sh
 ```
