@@ -117,7 +117,7 @@ install_V2bX() {
         echo -e "全新安装，请先参看教程：https://github.com/InazumaV/V2bX/tree/master/example，配置必要的内容"
         first_install=true
     else
-        systemctl start V2bX
+        rc-service V2bX start
         sleep 2
         check_status
         echo -e ""
