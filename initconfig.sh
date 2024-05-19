@@ -457,5 +457,22 @@ EOF
 }
 
 install_bbr() {
-    bash <(curl -L -s https://github.com/ylx2016/Linux-NetSpeed/raw/master/tcpx.sh)
+
+        # 开启 BBR
+        sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf 
+        sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+        echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf 
+        echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf 
+        sysctl -p
+        
+        # 加载 BBR 模块
+        modprobe tcp_bbr
+
+        # 验证 BBR 是否开启
+        sysctl net.ipv4.tcp_congestion_control
+        lsmod | grep bbr
+
+        echo "BBR 已启用"
+
+        
 }
